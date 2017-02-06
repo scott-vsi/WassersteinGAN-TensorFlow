@@ -83,11 +83,12 @@ def get_batch_images(batch_index, data, config):
         return data[batch_index*config.batch_size:(batch_index+1)*config.batch_size]
 
 def check_data_arr(config):
-    npy_path = os.path.join('./data', config.dataset+'.npy')
+    npy_path = os.path.join('/data', config.dataset, config.dataset+'.npy')
 
     if not os.path.exists(npy_path):
         is_grayscale = (config.c_dim == 1)
-        files = glob(os.path.join('./data', config.dataset, '*.jpg'))
+        files = glob(os.path.join('/data', config.dataset, '*/*.JPEG'))
+        files = np.random.permutation(files)[:config.train_size]
         data = [get_image(batch_file, config.image_size, is_crop=config.is_crop, resize_w=config.output_size, is_grayscale = is_grayscale) for batch_file in files]
 
         if (is_grayscale):
