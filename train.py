@@ -42,6 +42,7 @@ def train_wasserstein(sess, gan, data, config):
                 D_iters = config.nc
 
             # Update D network
+            if idx+D_iters > batch_idxs: break
             for i in range(0, D_iters):
                 sess.run(cap_d_vars_ops)
 
