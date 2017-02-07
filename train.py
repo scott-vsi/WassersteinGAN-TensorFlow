@@ -32,6 +32,8 @@ def train_wasserstein(sess, gan, data, config):
         idx = 0
         gen_iterations = 0
         batch_idxs = min(len(data), config.train_size) // config.batch_size
+        data = (np.random.permutation(data)[:config.train_size]).tolist()
+
         while idx < batch_idxs:
             
             if gen_iterations < 25 or gen_iterations % 500 == 0:

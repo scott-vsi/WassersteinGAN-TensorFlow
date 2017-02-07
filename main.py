@@ -36,7 +36,7 @@ def main(_):
     if not os.path.exists(FLAGS.sample_dir):
         os.makedirs(FLAGS.sample_dir)
 
-    data_path = check_data_arr(FLAGS)
+    #data_path = check_data_arr(FLAGS)
 
     with tf.Session() as sess:
         dcgan = DCGAN(sess, 
@@ -45,7 +45,9 @@ def main(_):
                       c_dim=FLAGS.c_dim)
 
         if FLAGS.is_train:
-            data = np.load(data_path)
+            data = glob(os.path.join('/data', FLAGS.dataset, '*/*.JPEG'))
+            #data = np.load(data_path)
+
             train.train_wasserstein(sess, dcgan, data, FLAGS)
         else:
             train.load(sess, dcgan, FLAGS)
