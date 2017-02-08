@@ -65,9 +65,7 @@ def inverse_transform(images):
     return (images+1.)/2.
 
 def get_batch_images(batch_index, data, config):
-    import h5py
-
-    if type(data) == list:
+    if type(data) == list and type(data[0]) is str:
         is_grayscale = (config.c_dim == 1)
 
         batch_files = data[batch_index*config.batch_size:(batch_index+1)*config.batch_size]
@@ -80,7 +78,7 @@ def get_batch_images(batch_index, data, config):
 
         return batch_images
 
-    elif type(data) == np.ndarray or type(data) == h5py.Dataset: # ugh
+    else:
         return data[batch_index*config.batch_size:(batch_index+1)*config.batch_size]
 
 def check_data_arr(config):
