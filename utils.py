@@ -80,7 +80,7 @@ def get_batch_images(batch_index, data, config):
 
         return batch_images
 
-    elif type(data) == np.ndarray or type(data) == h5py._hl.dataset.Dataset: # ugh
+    elif type(data) == np.ndarray or type(data) == h5py.Dataset: # ugh
         return data[batch_index*config.batch_size:(batch_index+1)*config.batch_size]
 
 def check_data_arr(config):
