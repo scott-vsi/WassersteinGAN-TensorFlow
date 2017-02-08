@@ -1,3 +1,4 @@
+# python main.py --dataset images --is_train True --is_crop=True --image_size 255 --train_size 240000
 import os
 import scipy.misc
 import numpy as np
