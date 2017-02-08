@@ -98,3 +98,24 @@ def check_data_arr(config):
         np.save(npy_path, data)
 
     return npy_path
+
+def create_data_arr(config):
+    h5_path = os.path.join('/data', config.dataset, config.dataset+'.h5')
+
+    if not os.path.exists(h5_path):
+        import h5py
+
+        files = glob(os.path.join(os.path.dirname(h5_path), '*/*.JPEG'))
+        files = np.random.permutation(files)[:config.train_size if np.isfinite(config.train_size) else None]
+        width, height = config.output_size, config.output_size
+        is_grayscale = (config.c_dim == 1)
+
+        with h5py.File(h5_path, 'w') as fd:
+            data = fd.create_dataset('data', shape=(config.train_size, width, height, config.c_dim), 
+                    chunks=(1000, width, height, config.c_dim), compression='lzf')
+            for i,fn in enumerate(files):
+                im = get_image(fn, config.image_size, is_crop=config.is_crop, resize_w=config.output_size, is_grayscale=is_grayscale)
+                im = im.astype(np.float32)[:, :, :, None] if is_grayscale else im.astype(np.float32)
+                data[i,...] = im
+
+    return h5_path

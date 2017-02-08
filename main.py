@@ -2,10 +2,11 @@ import os
 import scipy.misc
 import numpy as np
 from glob import glob
+import h5py
 
 import train
 from model import DCGAN
-from utils import pp, check_data_arr
+from utils import pp, check_data_arr, create_data_arr
 
 import tensorflow as tf
 
@@ -37,6 +38,7 @@ def main(_):
         os.makedirs(FLAGS.sample_dir)
 
     #data_path = check_data_arr(FLAGS)
+    data_path = create_data_arr(FLAGS)
 
     with tf.Session() as sess:
         dcgan = DCGAN(sess, 
@@ -45,10 +47,12 @@ def main(_):
                       c_dim=FLAGS.c_dim)
 
         if FLAGS.is_train:
-            data = glob(os.path.join('/data', FLAGS.dataset, '*/*.JPEG'))
+            #data = glob(os.path.join('/data', FLAGS.dataset, '*/*.JPEG'))
             #data = np.load(data_path)
 
-            train.train_wasserstein(sess, dcgan, data, FLAGS)
+            with h5py.File(data_path, 'r') as fd:
+                data = fd['data']
+                train.train_wasserstein(sess, dcgan, data, FLAGS)
         else:
             train.load(sess, dcgan, FLAGS)
 
