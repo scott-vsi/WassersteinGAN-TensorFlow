@@ -65,6 +65,7 @@ def inverse_transform(images):
     return (images+1.)/2.
 
 def get_batch_images(batch_index, data, config):
+    import h5py
 
     if type(data) == list:
         is_grayscale = (config.c_dim == 1)
@@ -79,7 +80,7 @@ def get_batch_images(batch_index, data, config):
 
         return batch_images
 
-    elif type(data) == np.ndarray:
+    elif type(data) == np.ndarray or type(data) == h5py._hl.dataset.Dataset: # ugh
         return data[batch_index*config.batch_size:(batch_index+1)*config.batch_size]
 
 def check_data_arr(config):
@@ -104,18 +105,21 @@ def create_data_arr(config):
 
     if not os.path.exists(h5_path):
         import h5py
+        import itertools as it
 
         files = glob(os.path.join(os.path.dirname(h5_path), '*/*.JPEG'))
         files = np.random.permutation(files)[:config.train_size if np.isfinite(config.train_size) else None]
         width, height = config.output_size, config.output_size
         is_grayscale = (config.c_dim == 1)
 
+        chunk_size = 10000
         with h5py.File(h5_path, 'w') as fd:
             data = fd.create_dataset('data', shape=(config.train_size, width, height, config.c_dim), 
-                    chunks=(1000, width, height, config.c_dim), compression='lzf')
-            for i,fn in enumerate(files):
-                im = get_image(fn, config.image_size, is_crop=config.is_crop, resize_w=config.output_size, is_grayscale=is_grayscale)
-                im = im.astype(np.float32)[:, :, :, None] if is_grayscale else im.astype(np.float32)
-                data[i,...] = im
+                    chunks=(chunk_size, width, height, config.c_dim), compression='lzf')
+            for i,batch in enumerate(it.izip_longest(*[iter(files)]*chunk_size)):
+                images = [get_image(batch_file, config.image_size, is_crop=config.is_crop, resize_w=config.output_size, is_grayscale=is_grayscale) 
+                    for batch_file in batch if batch_file is not None]
+                images = np.array(images).astype(np.float32)[:,:,:,None] if is_grayscale else np.array(images).astype(np.float32)
+                data[i*chunk_size:(i+1)*chunk_size,...] = images
 
     return h5_path
