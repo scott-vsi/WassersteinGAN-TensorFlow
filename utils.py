@@ -110,14 +110,16 @@ def create_data_arr(config):
         width, height = config.output_size, config.output_size
         is_grayscale = (config.c_dim == 1)
 
-        chunk_size = 10000
+        nfilenames_per_batch = 10000
         with h5py.File(h5_path, 'w') as fd:
+            # limit chunk size to less than 1 MiB per documentation
             data = fd.create_dataset('data', shape=(config.train_size, width, height, config.c_dim), 
-                    chunks=(chunk_size, width, height, config.c_dim), compression='lzf')
-            for i,batch in enumerate(it.izip_longest(*[iter(files)]*chunk_size)):
+                    chunks=(50, width, height, config.c_dim), compression='lzf', shuffle=True)
+            # save images to the h5 dataset in batches for performance
+            for i,batch in enumerate(it.izip_longest(*[iter(files)]*nfilenames_per_batch)):
                 images = [get_image(batch_file, config.image_size, is_crop=config.is_crop, resize_w=config.output_size, is_grayscale=is_grayscale) 
                     for batch_file in batch if batch_file is not None]
                 images = np.array(images).astype(np.float32)[:,:,:,None] if is_grayscale else np.array(images).astype(np.float32)
-                data[i*chunk_size:(i+1)*chunk_size,...] = images
+                data[i*nfilenames_per_batch:(i+1)*nfilenames_per_batch,...] = images
 
     return h5_path
