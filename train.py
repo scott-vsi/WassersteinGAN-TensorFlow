@@ -32,7 +32,7 @@ def train_wasserstein(sess, gan, data, config):
         idx = 0
         gen_iterations = 0
         batch_idxs = min(len(data), config.train_size) // config.batch_size
-        #data = (np.random.permutation(data)[:config.train_size]).tolist()
+        rand_indices = np.random.permutation(batch_idxs)
 
         while idx < batch_idxs:
             
@@ -46,7 +46,8 @@ def train_wasserstein(sess, gan, data, config):
             for i in range(0, D_iters):
                 sess.run(cap_d_vars_ops)
 
-                batch_images = get_batch_images(idx, data, config)
+                rand_idx = rand_indices[idx] # shuffle batchs
+                batch_images = get_batch_images(rand_idx, data, config)
                 batch_z = gan.z_gen(shape=(gan.batch_size , gan.z_dim)).astype(np.float32)
                 _, summary_str = sess.run([d_optim, d_sum],feed_dict={ gan.images: batch_images, gan.z: batch_z })
                 writer.add_summary(summary_str, gan.global_step.eval())
