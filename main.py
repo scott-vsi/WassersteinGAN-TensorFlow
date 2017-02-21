@@ -15,6 +15,7 @@ flags = tf.app.flags
 flags.DEFINE_integer("epoch", 25, "Epoch to train [25]")
 flags.DEFINE_float("lrD", 0.00005, "Learning rate critic/discriminator [0.00005]")
 flags.DEFINE_float("lrG", 0.00005, "Learning rate generator [0.00005]")
+flags.DEFINE_float("beta1", 0.5, "Momentum term of adam [0.5]")
 flags.DEFINE_float("clamp", 0.01, "clamp range for Critic weights [0.01]")
 flags.DEFINE_integer("train_size", np.inf, "The size of train images [np.inf]")
 flags.DEFINE_integer("batch_size", 64, "The size of batch images [64]")

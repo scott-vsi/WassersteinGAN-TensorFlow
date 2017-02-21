@@ -6,8 +6,11 @@ from utils import *
 def train_wasserstein(sess, gan, data, config):
     """Train wasserstein GAN"""
 
-    d_optim = tf.train.RMSPropOptimizer(config.lrD).minimize(gan.d_loss, var_list=gan.d_vars, global_step=gan.global_step)
-    g_optim = tf.train.RMSPropOptimizer(config.lrG).minimize(gan.g_loss, var_list=gan.g_vars)
+    d_optim = tf.train.AdamOptimizer(config.lrD, beta1=config.beta1) \
+                      .minimize(gan.d_loss, var_list=gan.d_vars, global_step=gan.global_step)
+    g_optim = tf.train.AdamOptimizer(config.lrG, beta1=config.beta1) \
+                      .minimize(gan.g_loss, var_list=gan.g_vars)
+
     cap_d_vars_ops = [val.assign(tf.clip_by_value(val, -config.clamp, config.clamp)) for val in gan.d_vars]
 
     init_op = tf.global_variables_initializer()
