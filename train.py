@@ -35,6 +35,9 @@ def train_wasserstein(sess, gan, data, config):
         idx = 0
         gen_iterations = 0
         batch_idxs = min(len(data), config.train_size) // config.batch_size
+        # random batches drawn from the data[:train_size,...]
+        # RE could draw a random batch from a fixed set of batches selected from the full dataset
+        # RE could also just allow batches to be randomly selected from data to approximate the full dataset
         rand_indices = np.random.permutation(batch_idxs)
 
         while idx < batch_idxs:
@@ -98,7 +101,7 @@ def load(sess, gan, config):
     ckpt = tf.train.get_checkpoint_state(checkpoint_dir)
     if ckpt and ckpt.model_checkpoint_path:
         ckpt_name = os.path.basename(ckpt.model_checkpoint_path)
-        gan.saver.restore(sess, os.path.join(config.checkpoint_dir, ckpt_name))
+        gan.saver.restore(sess, os.path.join(checkpoint_dir, ckpt_name))
         print(" [*] Success to read {}".format(ckpt_name))
         return True
     else:
