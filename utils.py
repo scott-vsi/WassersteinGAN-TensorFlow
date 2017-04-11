@@ -105,7 +105,7 @@ def create_data_arr(config):
         import h5py
         import itertools as it
 
-        files = glob(os.path.join(os.path.dirname(h5_path), config.dataset, '*/*.JPEG'))
+        files = glob(os.path.join('/data', config.dataset, '*/*.JPEG'))
         files = np.random.permutation(files)[:config.train_size if np.isfinite(config.train_size) else None]
         width, height = config.output_size, config.output_size
         is_grayscale = (config.c_dim == 1)
